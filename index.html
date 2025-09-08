@@ -1,0 +1,634 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Science Timeline</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Arial', sans-serif;
+            background: linear-gradient(135deg, #0a0e27 0%, #1a1d3a 50%, #2d3561 100%);
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        .stars {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            background-image: 
+                radial-gradient(2px 2px at 20px 30px, #eee, transparent),
+                radial-gradient(2px 2px at 40px 70px, rgba(255,255,255,0.8), transparent),
+                radial-gradient(1px 1px at 90px 40px, #fff, transparent),
+                radial-gradient(1px 1px at 130px 80px, rgba(255,255,255,0.6), transparent),
+                radial-gradient(2px 2px at 160px 30px, #fff, transparent);
+            background-repeat: repeat;
+            background-size: 200px 100px;
+            animation: sparkle 20s linear infinite;
+        }
+
+        @keyframes sparkle {
+            from { transform: translateY(0px); }
+            to { transform: translateY(-100px); }
+        }
+
+        .header {
+            text-align: center;
+            padding: 60px 20px;
+            position: relative;
+            z-index: 10;
+        }
+
+        .header h1 {
+            font-size: 3.5rem;
+            font-weight: 300;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #64ffda, #00bcd4, #2196f3);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-shadow: 0 0 30px rgba(100, 255, 218, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            opacity: 0.8;
+            max-width: 600px;
+            margin: 0 auto;
+            line-height: 1.6;
+        }
+
+        .timeline-container {
+            position: relative;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .timeline-line {
+            position: absolute;
+            left: 50%;
+            top: 0;
+            bottom: 0;
+            width: 4px;
+            background: linear-gradient(to bottom, #64ffda, #00bcd4, #2196f3, #9c27b0, #e91e63);
+            transform: translateX(-50%);
+            box-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+        }
+
+        .era {
+            margin-bottom: 80px;
+            position: relative;
+        }
+
+        .era-title {
+            text-align: center;
+            font-size: 2.5rem;
+            font-weight: 300;
+            margin-bottom: 50px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 255, 218, 0.3);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .timeline-item {
+            display: flex;
+            margin-bottom: 60px;
+            align-items: center;
+            opacity: 0;
+            transform: translateY(50px);
+            animation: fadeInUp 0.8s ease-out forwards;
+        }
+
+        .timeline-item:nth-child(even) {
+            flex-direction: row-reverse;
+        }
+
+        .timeline-item:nth-child(even) .timeline-content {
+            text-align: right;
+        }
+
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .timeline-marker {
+            width: 20px;
+            height: 20px;
+            background: linear-gradient(45deg, #64ffda, #00bcd4);
+            border-radius: 50%;
+            position: relative;
+            z-index: 5;
+            margin: 0 40px;
+            box-shadow: 0 0 20px rgba(100, 255, 218, 0.6);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .timeline-content {
+            flex: 1;
+            max-width: 500px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 30px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 255, 218, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+
+        .timeline-content:hover {
+            transform: translateY(-10px);
+            box-shadow: 0 15px 40px rgba(100, 255, 218, 0.2);
+            border-color: rgba(100, 255, 218, 0.4);
+        }
+
+        .timeline-date {
+            font-size: 1.1rem;
+            font-weight: bold;
+            color: #64ffda;
+            margin-bottom: 15px;
+            text-shadow: 0 0 10px rgba(100, 255, 218, 0.5);
+        }
+
+        .timeline-title {
+            font-size: 1.4rem;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #ffffff;
+        }
+
+        .timeline-description {
+            font-size: 1rem;
+            line-height: 1.6;
+            opacity: 0.9;
+            margin-bottom: 15px;
+        }
+
+        .timeline-significance {
+            font-size: 0.95rem;
+            font-style: italic;
+            color: #00bcd4;
+            border-left: 3px solid #64ffda;
+            padding-left: 15px;
+            margin-top: 15px;
+            background: rgba(100, 255, 218, 0.1);
+            padding: 10px 15px;
+            border-radius: 0 10px 10px 0;
+        }
+
+        .habit-section {
+            text-align: center;
+            padding: 80px 20px;
+            background: rgba(255, 255, 255, 0.05);
+            margin: 80px 0;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(100, 255, 218, 0.3);
+        }
+
+        .habit-section h2 {
+            font-size: 2.5rem;
+            margin-bottom: 20px;
+            color: #64ffda;
+        }
+
+        .habit-section h3 {
+            font-size: 1.5rem;
+            margin-bottom: 30px;
+            color: #00bcd4;
+        }
+
+        .habit-formula {
+            font-size: 2rem;
+            font-weight: bold;
+            color: #ffffff;
+            text-shadow: 0 0 20px rgba(100, 255, 218, 0.5);
+        }
+
+        @media (max-width: 768px) {
+            .timeline-line {
+                left: 30px;
+            }
+
+            .timeline-item {
+                flex-direction: row !important;
+                margin-left: 60px;
+            }
+
+            .timeline-item .timeline-content {
+                text-align: left !important;
+            }
+
+            .timeline-marker {
+                margin: 0 20px 0 0;
+            }
+
+            .header h1 {
+                font-size: 2.5rem;
+            }
+
+            .era-title {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="stars"></div>
+    
+    <div class="header">
+        <h1>Interactive Science Timeline</h1>
+        <p>Detailed Events - From Prehistoric Era to 21st Century Science & Technology</p>
+    </div>
+
+    <div class="timeline-container">
+        <div class="timeline-line"></div>
+
+        <!-- Prehistoric Era -->
+        <div class="era">
+            <div class="era-title">Prehistoric Era (before 1500 CE)</div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">~2.5 million years ago</div>
+                    <div class="timeline-title">First Stone Tools</div>
+                    <div class="timeline-description">Early humans (Homo habilis) created simple stone tools for cutting and hunting.</div>
+                    <div class="timeline-significance">Significance: Marked the beginning of technology and gave humans an evolutionary advantage.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">~1 million years ago</div>
+                    <div class="timeline-title">Control of Fire</div>
+                    <div class="timeline-description">Evidence shows early humans learned to make and control fire.</div>
+                    <div class="timeline-significance">Significance: Provided warmth, protection, cooking, and social gathering, shaping human evolution.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">~10,000 BCE</div>
+                    <div class="timeline-title">Development of Agriculture</div>
+                    <div class="timeline-description">Humans began farming in the Fertile Crescent and other regions.</div>
+                    <div class="timeline-significance">Significance: Led to permanent settlements, population growth, and the rise of civilizations.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">Ancient Civilizations</div>
+                    <div class="timeline-title">Early Astronomy</div>
+                    <div class="timeline-description">Egyptians, Babylonians, and Mayans tracked stars and planets to create calendars.</div>
+                    <div class="timeline-significance">Significance: Allowed for accurate farming cycles, navigation, and early scientific thought.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1500s -->
+        <div class="era">
+            <div class="era-title">1500s – The Dawn of Modern Science</div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1543</div>
+                    <div class="timeline-title">Copernicus Publishes On the Revolutions of the Celestial Spheres</div>
+                    <div class="timeline-description">Proposed the heliocentric model, placing the Sun at the center of the universe instead of Earth.</div>
+                    <div class="timeline-significance">Significance: Challenged centuries of geocentric belief and reshaped astronomy.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1545</div>
+                    <div class="timeline-title">Andreas Vesalius Publishes De Humani Corporis Fabrica</div>
+                    <div class="timeline-description">First detailed and accurate study of human anatomy.</div>
+                    <div class="timeline-significance">Significance: Corrected ancient misconceptions and advanced medicine and surgery.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1572</div>
+                    <div class="timeline-title">Tycho Brahe Observes a Supernova</div>
+                    <div class="timeline-description">Proved the heavens were not unchanging, contradicting Aristotelian views.</div>
+                    <div class="timeline-significance">Significance: Paved the way for modern astronomy and understanding of stellar life cycles.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1590s</div>
+                    <div class="timeline-title">Invention of the Compound Microscope</div>
+                    <div class="timeline-description">Attributed to Hans & Zacharias Janssen.</div>
+                    <div class="timeline-significance">Significance: Allowed scientists to study microorganisms and cells for the first time.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1600s -->
+        <div class="era">
+            <div class="era-title">1600s – Scientific Revolution</div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1609</div>
+                    <div class="timeline-title">Galileo Improves the Telescope</div>
+                    <div class="timeline-description">Observed Jupiter's moons, lunar craters, and phases of Venus.</div>
+                    <div class="timeline-significance">Significance: Provided strong evidence for heliocentrism.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1620</div>
+                    <div class="timeline-title">Francis Bacon Publishes Novum Organum</div>
+                    <div class="timeline-description">Introduced the scientific method, emphasizing observation and experimentation.</div>
+                    <div class="timeline-significance">Significance: Laid the foundation for modern scientific inquiry.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1665</div>
+                    <div class="timeline-title">Robert Hooke Publishes Micrographia</div>
+                    <div class="timeline-description">Coined the term "cell" while observing cork under a microscope.</div>
+                    <div class="timeline-significance">Significance: Birth of cell theory in biology.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1687</div>
+                    <div class="timeline-title">Isaac Newton Publishes Principia Mathematica</div>
+                    <div class="timeline-description">Defined laws of motion and universal gravitation.</div>
+                    <div class="timeline-significance">Significance: Revolutionized physics and astronomy.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1700s -->
+        <div class="era">
+            <div class="era-title">1700s – Enlightenment & Discovery</div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1735</div>
+                    <div class="timeline-title">Carl Linnaeus Publishes Systema Naturae</div>
+                    <div class="timeline-description">Introduced binomial nomenclature, the system for naming species.</div>
+                    <div class="timeline-significance">Significance: Foundation of modern biological classification.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1752</div>
+                    <div class="timeline-title">Benjamin Franklin's Kite Experiment</div>
+                    <div class="timeline-description">Demonstrated that lightning is electricity.</div>
+                    <div class="timeline-significance">Significance: Led to the invention of the lightning rod and advanced electrical science.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1774</div>
+                    <div class="timeline-title">Joseph Priestley Discovers Oxygen</div>
+                    <div class="timeline-description">Identified a gas that supported combustion and respiration.</div>
+                    <div class="timeline-significance">Significance: Fundamental to chemistry and medicine.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1785</div>
+                    <div class="timeline-title">James Hutton Publishes Theory of Uniformitarianism</div>
+                    <div class="timeline-description">Proposed that Earth's features formed over long periods through gradual processes.</div>
+                    <div class="timeline-significance">Significance: Laid groundwork for modern geology.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1800s -->
+        <div class="era">
+            <div class="era-title">1800s – Age of Invention & Modern Biology</div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1800</div>
+                    <div class="timeline-title">Alessandro Volta Invents the Voltaic Pile (Battery)</div>
+                    <div class="timeline-description">First true source of continuous electrical current.</div>
+                    <div class="timeline-significance">Significance: Enabled experiments that fueled the study of electricity and chemistry.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1827</div>
+                    <div class="timeline-title">Georg Ohm Formulates Ohm's Law</div>
+                    <div class="timeline-description">Relationship between voltage, current, and resistance.</div>
+                    <div class="timeline-significance">Significance: Fundamental principle for electrical circuits and modern electronics.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1859</div>
+                    <div class="timeline-title">Charles Darwin Publishes On the Origin of Species</div>
+                    <div class="timeline-description">Introduced the theory of evolution by natural selection.</div>
+                    <div class="timeline-significance">Significance: Revolutionized biology, medicine, and our understanding of life.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1869</div>
+                    <div class="timeline-title">Dmitri Mendeleev Creates the Periodic Table</div>
+                    <div class="timeline-description">Organized chemical elements by atomic weight and properties.</div>
+                    <div class="timeline-significance">Significance: Provided a framework for modern chemistry and predicted new elements.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 1900s -->
+        <div class="era">
+            <div class="era-title">1900s – Scientific Breakthroughs & Space Age</div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1905</div>
+                    <div class="timeline-title">Albert Einstein's Annus Mirabilis Papers</div>
+                    <div class="timeline-description">Introduced special relativity and groundbreaking physics theories.</div>
+                    <div class="timeline-significance">Significance: Changed our understanding of time, space, and energy.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1928</div>
+                    <div class="timeline-title">Alexander Fleming Discovers Penicillin</div>
+                    <div class="timeline-description">First true antibiotic, revolutionizing medicine and saving millions of lives.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1953</div>
+                    <div class="timeline-title">Watson & Crick Describe the Structure of DNA</div>
+                    <div class="timeline-description">Discovery of the double helix with key contributions from Rosalind Franklin.</div>
+                    <div class="timeline-significance">Significance: Foundation of molecular biology and genetics.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">1969</div>
+                    <div class="timeline-title">Apollo 11 Moon Landing</div>
+                    <div class="timeline-description">Neil Armstrong and Buzz Aldrin became the first humans to walk on the Moon.</div>
+                    <div class="timeline-significance">Significance: Major milestones in space exploration and human achievement.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 2000s -->
+        <div class="era">
+            <div class="era-title">2000s – 21st Century Science & Technology</div>
+            
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">2001</div>
+                    <div class="timeline-title">Human Genome Project Draft Completed</div>
+                    <div class="timeline-description">First map of all human genes.</div>
+                    <div class="timeline-significance">Significance: Revolutionized medicine, genetics, and biotechnology.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">2007</div>
+                    <div class="timeline-title">Launch of the iPhone</div>
+                    <div class="timeline-description">Combined phone, music player, and internet into one device.</div>
+                    <div class="timeline-significance">Significance: Transformed communication, computing, and global culture.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">2012</div>
+                    <div class="timeline-title">Discovery of the Higgs Boson</div>
+                    <div class="timeline-description">Confirmed the existence of the Higgs field, essential for understanding mass.</div>
+                    <div class="timeline-significance">Significance: Major victory for particle physics and the Standard Model.</div>
+                </div>
+            </div>
+
+            <div class="timeline-item">
+                <div class="timeline-marker"></div>
+                <div class="timeline-content">
+                    <div class="timeline-date">2019/2020</div>
+                    <div class="timeline-title">First Image of a Black Hole (M87 Galaxy)</div>
+                    <div class="timeline-description">Captured by the Event Horizon Telescope.</div>
+                    <div class="timeline-significance">Significance: Historic proof of Einstein's theory of general relativity on a cosmic scale.</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Habit Section -->
+        <div class="habit-section">
+            <h2>Habit 4 – Think Win–Win</h2>
+            <h3>Let's Make It a Habit!</h3>
+            <div class="habit-formula">your win + my win = OUR WIN</div>
+            <p style="margin-top: 30px; opacity: 0.7;">Because</p>
+            <p style="margin-top: 10px; font-size: 0.9rem; opacity: 0.5;">rbbalagtasii</p>
+        </div>
+    </div>
+
+    <script>
+        // Add staggered animation delays to timeline items
+        const timelineItems = document.querySelectorAll('.timeline-item');
+        timelineItems.forEach((item, index) => {
+            item.style.animationDelay = `${index * 0.2}s`;
+        });
+
+        // Add smooth scrolling behavior
+        document.addEventListener('DOMContentLoaded', function() {
+            const timelineItems = document.querySelectorAll('.timeline-content');
+            
+            timelineItems.forEach(item => {
+                item.addEventListener('click', function() {
+                    this.style.transform = 'scale(1.05)';
+                    setTimeout(() => {
+                        this.style.transform = '';
+                    }, 200);
+                });
+            });
+        });
+
+        // Intersection Observer for scroll animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
+
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, observerOptions);
+
+        // Observe all timeline items
+        document.querySelectorAll('.timeline-item').forEach(item => {
+            observer.observe(item);
+        });
+    </script>
+</body>
+</html>
