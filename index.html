@@ -19,7 +19,6 @@
             overflow-x: hidden;
         }
 
-        /* Subtle background pattern for cognitive ease */
         body::before {
             content: '';
             position: fixed;
@@ -48,8 +47,6 @@
             font-weight: 400;
             margin-bottom: 15px;
             color: #34495e;
-            font-family: 'Georgia', serif;
-            text-shadow: none;
         }
 
         .header p {
@@ -105,7 +102,6 @@
             box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
             border: 2px solid #e3f2fd;
             color: #1565c0;
-            font-family: 'Georgia', serif;
         }
 
         .timeline-item {
@@ -119,10 +115,6 @@
 
         .timeline-item:nth-child(even) {
             flex-direction: row-reverse;
-        }
-
-        .timeline-item:nth-child(even) .timeline-content {
-            text-align: left;
         }
 
         @keyframes fadeInUp {
@@ -163,7 +155,6 @@
             border-color: #4caf50;
         }
 
-        /* Memory aid: Color coding by importance */
         .timeline-content::before {
             content: '';
             position: absolute;
@@ -175,6 +166,21 @@
             border-radius: 12px 12px 0 0;
         }
 
+        .timeline-content::after {
+            content: '🔍 Click to explore';
+            position: absolute;
+            top: 10px;
+            right: 15px;
+            font-size: 0.75rem;
+            color: #4caf50;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .timeline-content:hover::after {
+            opacity: 1;
+        }
+
         .timeline-date {
             font-size: 1rem;
             font-weight: 600;
@@ -184,7 +190,6 @@
             background: rgba(21, 101, 192, 0.1);
             border-radius: 6px;
             display: inline-block;
-            font-family: 'Georgia', serif;
         }
 
         .timeline-title {
@@ -192,7 +197,6 @@
             font-weight: 600;
             margin-bottom: 12px;
             color: #2c3e50;
-            font-family: 'Georgia', serif;
         }
 
         .timeline-description {
@@ -213,43 +217,166 @@
             font-style: italic;
         }
 
-        .habit-section {
-            text-align: center;
-            padding: 50px 30px;
-            background: linear-gradient(135deg, #fff3e0 0%, #ffecb3 100%);
-            margin: 60px auto;
-            max-width: 800px;
+        /* Modal Styles */
+        .detail-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            backdrop-filter: blur(5px);
+        }
+
+        .detail-modal.show {
+            display: flex;
+            animation: fadeIn 0.3s ease-out;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .detail-content {
+            background: #ffffff;
             border-radius: 20px;
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            border: 2px solid #ffcc02;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            padding: 40px;
+            margin: 20px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.3);
+            position: relative;
+            animation: slideIn 0.4s ease-out;
         }
 
-        .habit-section h2 {
-            font-size: 2.2rem;
+        @keyframes slideIn {
+            from { transform: scale(0.8) translateY(50px); opacity: 0; }
+            to { transform: scale(1) translateY(0); opacity: 1; }
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 15px;
+            right: 20px;
+            font-size: 2rem;
+            color: #666;
+            cursor: pointer;
+            width: 40px;
+            height: 40px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            background: #f5f5f5;
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            background: #e0e0e0;
+            color: #333;
+            transform: rotate(90deg);
+        }
+
+        .detail-header {
+            border-bottom: 3px solid #4caf50;
+            padding-bottom: 20px;
+            margin-bottom: 30px;
+        }
+
+        .detail-date {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: #1565c0;
+            background: rgba(21, 101, 192, 0.1);
+            padding: 8px 16px;
+            border-radius: 8px;
+            display: inline-block;
             margin-bottom: 15px;
-            color: #e65100;
-            font-family: 'Georgia', serif;
         }
 
-        .habit-section h3 {
-            font-size: 1.3rem;
-            margin-bottom: 25px;
-            color: #f57c00;
+        .detail-title {
+            font-size: 2.2rem;
+            font-weight: 600;
+            color: #2c3e50;
+            margin-bottom: 15px;
+        }
+
+        .detail-body {
+            display: grid;
+            grid-template-columns: 1fr 300px;
+            gap: 30px;
+            margin-bottom: 30px;
+        }
+
+        .detail-text {
+            font-size: 1.1rem;
+            line-height: 1.8;
+            color: #333;
+        }
+
+        .detail-text h3 {
+            color: #2e7d32;
+            margin: 25px 0 15px 0;
+            font-size: 1.4rem;
+        }
+
+        .detail-text p {
+            margin-bottom: 15px;
+        }
+
+        .detail-image {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #f0f0f0 0%, #e0e0e0 100%);
+            border-radius: 12px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 3rem;
+            color: #999;
+            margin-bottom: 15px;
+            border: 2px dashed #ccc;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .detail-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, rgba(76, 175, 80, 0.1) 0%, rgba(139, 195, 74, 0.1) 100%);
+        }
+
+        .image-caption {
+            font-size: 0.9rem;
+            color: #666;
+            text-align: center;
             font-style: italic;
         }
 
-        .habit-formula {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: #bf360c;
-            background: rgba(255, 255, 255, 0.8);
-            padding: 20px;
+        .impact-section {
+            background: linear-gradient(135deg, #e8f5e8 0%, #f1f8e9 100%);
+            padding: 25px;
             border-radius: 12px;
-            margin: 20px 0;
-            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+            border-left: 5px solid #4caf50;
+            margin: 30px 0;
         }
 
-        /* Study aids: Progressive disclosure */
+        .impact-section h3 {
+            color: #2e7d32;
+            margin-bottom: 15px;
+            font-size: 1.3rem;
+        }
+
         .study-note {
             position: fixed;
             top: 20px;
@@ -261,31 +388,8 @@
             font-size: 0.9rem;
             color: #1565c0;
             max-width: 250px;
-            z-index: 1000;
+            z-index: 999;
             border: 1px solid #2196f3;
-        }
-
-        /* Cognitive load reduction: Spacing and typography */
-        .timeline-item:nth-child(4n+1) .timeline-content {
-            border-left: 4px solid #4caf50;
-        }
-
-        .timeline-item:nth-child(4n+2) .timeline-content {
-            border-left: 4px solid #2196f3;
-        }
-
-        .timeline-item:nth-child(4n+3) .timeline-content {
-            border-left: 4px solid #ff9800;
-        }
-
-        .timeline-item:nth-child(4n+4) .timeline-content {
-            border-left: 4px solid #9c27b0;
-        }
-
-        /* Focus states for accessibility and learning */
-        .timeline-content:focus {
-            outline: 3px solid #4caf50;
-            outline-offset: 2px;
         }
 
         @media (max-width: 768px) {
@@ -298,40 +402,19 @@
                 margin-left: 50px;
             }
 
-            .timeline-item .timeline-content {
-                text-align: left !important;
-            }
-
             .timeline-marker {
                 margin: 25px 20px 0 0;
             }
 
-            .header h1 {
-                font-size: 2.2rem;
-            }
-
-            .era-title {
-                font-size: 1.6rem;
+            .detail-content {
                 padding: 20px;
+                margin: 10px;
             }
 
-            .study-note {
-                display: none;
+            .detail-body {
+                grid-template-columns: 1fr;
             }
-        }
 
-        /* Print styles for study materials */
-        @media print {
-            body {
-                background: white;
-                font-size: 12pt;
-            }
-            
-            .timeline-content {
-                break-inside: avoid;
-                margin-bottom: 20pt;
-            }
-            
             .study-note {
                 display: none;
             }
@@ -340,14 +423,36 @@
 </head>
 <body>
     <div class="study-note">
-        💡 <strong>Study Tip:</strong> Click on any timeline event to highlight it. Use the color coding to group related discoveries!
+        💡 <strong>Study Tip:</strong> Click on any timeline event to explore detailed information with images and expanded context!
     </div>
     
     <div class="header">
         <h1>Interactive Science Timeline</h1>
         <p>A Comprehensive Educational Journey Through Scientific Discovery</p>
         <div class="learning-tip">
-            <strong>Learning Strategy:</strong> Each era is color-coded to help you organize knowledge. Take breaks between sections to improve retention and understanding.
+            <strong>Learning Strategy:</strong> Each era is color-coded to help you organize knowledge. Click on any discovery to explore detailed information, images, and historical context.
+        </div>
+    </div>
+
+    <!-- Detail Modal -->
+    <div class="detail-modal" id="detailModal">
+        <div class="detail-content">
+            <div class="close-btn" onclick="closeModal()">&times;</div>
+            <div class="detail-header">
+                <div class="detail-date" id="modalDate"></div>
+                <div class="detail-title" id="modalTitle"></div>
+            </div>
+            <div class="detail-body">
+                <div class="detail-text" id="modalText"></div>
+                <div class="detail-image-container">
+                    <div class="detail-image" id="modalImage">🖼️</div>
+                    <div class="image-caption" id="modalImageCaption"></div>
+                </div>
+            </div>
+            <div class="impact-section">
+                <h3>Historical Impact & Significance</h3>
+                <div id="modalImpact"></div>
+            </div>
         </div>
     </div>
 
@@ -360,7 +465,7 @@
             
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('stone-tools')">
                     <div class="timeline-date">~2.5 million years ago</div>
                     <div class="timeline-title">First Stone Tools</div>
                     <div class="timeline-description">Early humans (Homo habilis) created simple stone tools for cutting and hunting.</div>
@@ -370,7 +475,7 @@
 
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('fire-control')">
                     <div class="timeline-date">~1 million years ago</div>
                     <div class="timeline-title">Control of Fire</div>
                     <div class="timeline-description">Evidence shows early humans learned to make and control fire.</div>
@@ -380,7 +485,7 @@
 
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('agriculture')">
                     <div class="timeline-date">~10,000 BCE</div>
                     <div class="timeline-title">Development of Agriculture</div>
                     <div class="timeline-description">Humans began farming in the Fertile Crescent and other regions.</div>
@@ -390,7 +495,7 @@
 
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('early-astronomy')">
                     <div class="timeline-date">Ancient Civilizations</div>
                     <div class="timeline-title">Early Astronomy</div>
                     <div class="timeline-description">Egyptians, Babylonians, and Mayans tracked stars and planets to create calendars.</div>
@@ -405,7 +510,7 @@
             
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('copernicus')">
                     <div class="timeline-date">1543</div>
                     <div class="timeline-title">Copernicus Publishes On the Revolutions of the Celestial Spheres</div>
                     <div class="timeline-description">Proposed the heliocentric model, placing the Sun at the center of the universe instead of Earth.</div>
@@ -415,7 +520,7 @@
 
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('vesalius')">
                     <div class="timeline-date">1545</div>
                     <div class="timeline-title">Andreas Vesalius Publishes De Humani Corporis Fabrica</div>
                     <div class="timeline-description">First detailed and accurate study of human anatomy.</div>
@@ -425,21 +530,11 @@
 
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">1572</div>
-                    <div class="timeline-title">Tycho Brahe Observes a Supernova</div>
-                    <div class="timeline-description">Proved the heavens were not unchanging, contradicting Aristotelian views.</div>
-                    <div class="timeline-significance">Significance: Paved the way for modern astronomy and understanding of stellar life cycles.</div>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">1590s</div>
-                    <div class="timeline-title">Invention of the Compound Microscope</div>
-                    <div class="timeline-description">Attributed to Hans & Zacharias Janssen.</div>
-                    <div class="timeline-significance">Significance: Allowed scientists to study microorganisms and cells for the first time.</div>
+                <div class="timeline-content" onclick="openModal('galileo-telescope')">
+                    <div class="timeline-date">1609</div>
+                    <div class="timeline-title">Galileo Improves the Telescope</div>
+                    <div class="timeline-description">Observed Jupiter's moons, lunar craters, and phases of Venus.</div>
+                    <div class="timeline-significance">Significance: Provided strong evidence for heliocentrism.</div>
                 </div>
             </div>
         </div>
@@ -450,86 +545,21 @@
             
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">1609</div>
-                    <div class="timeline-title">Galileo Improves the Telescope</div>
-                    <div class="timeline-description">Observed Jupiter's moons, lunar craters, and phases of Venus.</div>
-                    <div class="timeline-significance">Significance: Provided strong evidence for heliocentrism.</div>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">1620</div>
-                    <div class="timeline-title">Francis Bacon Publishes Novum Organum</div>
-                    <div class="timeline-description">Introduced the scientific method, emphasizing observation and experimentation.</div>
-                    <div class="timeline-significance">Significance: Laid the foundation for modern scientific inquiry.</div>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">1665</div>
-                    <div class="timeline-title">Robert Hooke Publishes Micrographia</div>
-                    <div class="timeline-description">Coined the term "cell" while observing cork under a microscope.</div>
-                    <div class="timeline-significance">Significance: Birth of cell theory in biology.</div>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('newton-principia')">
                     <div class="timeline-date">1687</div>
                     <div class="timeline-title">Isaac Newton Publishes Principia Mathematica</div>
                     <div class="timeline-description">Defined laws of motion and universal gravitation.</div>
                     <div class="timeline-significance">Significance: Revolutionized physics and astronomy.</div>
                 </div>
             </div>
-        </div>
-
-        <!-- 1700s -->
-        <div class="era">
-            <div class="era-title">1700s – Enlightenment & Discovery</div>
-            
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">1735</div>
-                    <div class="timeline-title">Carl Linnaeus Publishes Systema Naturae</div>
-                    <div class="timeline-description">Introduced binomial nomenclature, the system for naming species.</div>
-                    <div class="timeline-significance">Significance: Foundation of modern biological classification.</div>
-                </div>
-            </div>
 
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">1752</div>
-                    <div class="timeline-title">Benjamin Franklin's Kite Experiment</div>
-                    <div class="timeline-description">Demonstrated that lightning is electricity.</div>
-                    <div class="timeline-significance">Significance: Led to the invention of the lightning rod and advanced electrical science.</div>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">1774</div>
-                    <div class="timeline-title">Joseph Priestley Discovers Oxygen</div>
-                    <div class="timeline-description">Identified a gas that supported combustion and respiration.</div>
-                    <div class="timeline-significance">Significance: Fundamental to chemistry and medicine.</div>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">1785</div>
-                    <div class="timeline-title">James Hutton Publishes Theory of Uniformitarianism</div>
-                    <div class="timeline-description">Proposed that Earth's features formed over long periods through gradual processes.</div>
-                    <div class="timeline-significance">Significance: Laid groundwork for modern geology.</div>
+                <div class="timeline-content" onclick="openModal('hooke-cells')">
+                    <div class="timeline-date">1665</div>
+                    <div class="timeline-title">Robert Hooke Publishes Micrographia</div>
+                    <div class="timeline-description">Coined the term "cell" while observing cork under a microscope.</div>
+                    <div class="timeline-significance">Significance: Birth of cell theory in biology.</div>
                 </div>
             </div>
         </div>
@@ -540,27 +570,7 @@
             
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">1800</div>
-                    <div class="timeline-title">Alessandro Volta Invents the Voltaic Pile (Battery)</div>
-                    <div class="timeline-description">First true source of continuous electrical current.</div>
-                    <div class="timeline-significance">Significance: Enabled experiments that fueled the study of electricity and chemistry.</div>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">1827</div>
-                    <div class="timeline-title">Georg Ohm Formulates Ohm's Law</div>
-                    <div class="timeline-description">Relationship between voltage, current, and resistance.</div>
-                    <div class="timeline-significance">Significance: Fundamental principle for electrical circuits and modern electronics.</div>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('darwin-evolution')">
                     <div class="timeline-date">1859</div>
                     <div class="timeline-title">Charles Darwin Publishes On the Origin of Species</div>
                     <div class="timeline-description">Introduced the theory of evolution by natural selection.</div>
@@ -570,7 +580,7 @@
 
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('mendeleev-periodic')">
                     <div class="timeline-date">1869</div>
                     <div class="timeline-title">Dmitri Mendeleev Creates the Periodic Table</div>
                     <div class="timeline-description">Organized chemical elements by atomic weight and properties.</div>
@@ -585,7 +595,7 @@
             
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('einstein-relativity')">
                     <div class="timeline-date">1905</div>
                     <div class="timeline-title">Albert Einstein's Annus Mirabilis Papers</div>
                     <div class="timeline-description">Introduced special relativity and groundbreaking physics theories.</div>
@@ -595,16 +605,7 @@
 
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">1928</div>
-                    <div class="timeline-title">Alexander Fleming Discovers Penicillin</div>
-                    <div class="timeline-description">First true antibiotic, revolutionizing medicine and saving millions of lives.</div>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('dna-discovery')">
                     <div class="timeline-date">1953</div>
                     <div class="timeline-title">Watson & Crick Describe the Structure of DNA</div>
                     <div class="timeline-description">Discovery of the double helix with key contributions from Rosalind Franklin.</div>
@@ -614,7 +615,7 @@
 
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('moon-landing')">
                     <div class="timeline-date">1969</div>
                     <div class="timeline-title">Apollo 11 Moon Landing</div>
                     <div class="timeline-description">Neil Armstrong and Buzz Aldrin became the first humans to walk on the Moon.</div>
@@ -629,7 +630,7 @@
             
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('human-genome')">
                     <div class="timeline-date">2001</div>
                     <div class="timeline-title">Human Genome Project Draft Completed</div>
                     <div class="timeline-description">First map of all human genes.</div>
@@ -639,98 +640,315 @@
 
             <div class="timeline-item">
                 <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">2007</div>
-                    <div class="timeline-title">Launch of the iPhone</div>
-                    <div class="timeline-description">Combined phone, music player, and internet into one device.</div>
-                    <div class="timeline-significance">Significance: Transformed communication, computing, and global culture.</div>
-                </div>
-            </div>
-
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
+                <div class="timeline-content" onclick="openModal('higgs-boson')">
                     <div class="timeline-date">2012</div>
                     <div class="timeline-title">Discovery of the Higgs Boson</div>
                     <div class="timeline-description">Confirmed the existence of the Higgs field, essential for understanding mass.</div>
                     <div class="timeline-significance">Significance: Major victory for particle physics and the Standard Model.</div>
                 </div>
             </div>
-
-            <div class="timeline-item">
-                <div class="timeline-marker"></div>
-                <div class="timeline-content" tabindex="0">
-                    <div class="timeline-date">2019/2020</div>
-                    <div class="timeline-title">First Image of a Black Hole (M87 Galaxy)</div>
-                    <div class="timeline-description">Captured by the Event Horizon Telescope.</div>
-                    <div class="timeline-significance">Significance: Historic proof of Einstein's theory of general relativity on a cosmic scale.</div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Habit Section -->
-        <div class="habit-section">
-            <h2>Habit 4 – Think Win–Win</h2>
-            <h3>Let's Make It a Habit!</h3>
-            <div class="habit-formula">your win + my win = OUR WIN</div>
-            <p style="margin-top: 25px; color: #6d4c41; font-style: italic;">Because</p>
-            <p style="margin-top: 10px; font-size: 0.9rem; color: #8d6e63;">rbbalagtasii</p>
         </div>
     </div>
 
     <script>
-        // Educational psychology principles for better learning
+        // Detailed information for each discovery
+        const discoveryData = {
+            'stone-tools': {
+                date: '~2.5 million years ago',
+                title: 'First Stone Tools',
+                text: `
+                    <h3>The Dawn of Technology</h3>
+                    <p>The creation of the first stone tools by early hominins represents one of the most significant breakthroughs in human evolution. These simple yet revolutionary implements were crafted by Homo habilis, often called "handy man" for this very reason.</p>
+                    
+                    <h3>Technical Details</h3>
+                    <p>The earliest known stone tools, called Oldowan tools, were made by striking one stone against another to create sharp edges. These tools included choppers, scrapers, and cutting implements that were used for processing meat, cracking bones for marrow, and preparing plant materials.</p>
+                    
+                    <h3>Archaeological Evidence</h3>
+                    <p>The oldest known stone tools were discovered in Ethiopia and Kenya, dating back approximately 2.6 million years. Sites like Gona in Ethiopia and Lomekwi 3 in Kenya have provided crucial evidence of early tool use.</p>
+                `,
+                imageCaption: 'Illustration of Oldowan stone tools and early hominin craftsmanship',
+                impact: 'This innovation marked the beginning of human technology and gave our ancestors a crucial advantage in survival. Tool use led to improved nutrition through better food processing, which likely contributed to brain development and the eventual emergence of more sophisticated human species.'
+            },
+            'fire-control': {
+                date: '~1 million years ago',
+                title: 'Control of Fire',
+                text: `
+                    <h3>Mastering the Elements</h3>
+                    <p>The controlled use of fire represents one of humanity's greatest achievements, fundamentally changing how our ancestors lived, ate, and socialized. This breakthrough occurred gradually over hundreds of thousands of years.</p>
+                    
+                    <h3>Archaeological Evidence</h3>
+                    <p>Evidence of controlled fire use has been found at sites like Wonderwerk Cave in South Africa (1 million years ago) and Qesem Cave in Israel (400,000 years ago). These sites show hearths, burned bones, and tools heated in fires.</p>
+                    
+                    <h3>Multiple Benefits</h3>
+                    <p>Fire provided warmth in cold climates, protection from predators, light for extended activities, and most importantly, the ability to cook food. Cooking made nutrients more available and reduced the energy needed for digestion.</p>
+                `,
+                imageCaption: 'Early humans gathering around a controlled fire in a cave setting',
+                impact: 'Fire control enabled human expansion into colder climates, improved nutrition through cooking, extended daily activities into the night, and created social gathering spaces that fostered communication and culture. Some scientists believe cooking was essential for the evolution of our large brains.'
+            },
+            'agriculture': {
+                date: '~10,000 BCE',
+                title: 'Development of Agriculture',
+                text: `
+                    <h3>The Neolithic Revolution</h3>
+                    <p>The transition from hunting and gathering to agriculture, known as the Neolithic Revolution, occurred independently in multiple regions around the world. This shift fundamentally changed human society and led to the rise of civilizations.</p>
+                    
+                    <h3>Global Emergence</h3>
+                    <p>Agriculture emerged in the Fertile Crescent (wheat, barley), China (rice, millet), Mesoamerica (maize, beans, squash), the Andes (potatoes, quinoa), Eastern North America (sunflower, squash), sub-Saharan Africa (yams, sorghum), and New Guinea (bananas, taro).</p>
+                    
+                    <h3>Domestication Process</h3>
+                    <p>Humans selectively bred wild plants and animals, gradually creating domestic species with traits beneficial for farming. This process took thousands of years and involved genetic changes in both crops and livestock.</p>
+                `,
+                imageCaption: 'Ancient farmers working in fields with early agricultural tools and domesticated animals',
+                impact: 'Agriculture enabled permanent settlements, population growth, food surpluses, specialization of labor, social stratification, and the development of complex societies. It also led to environmental changes and new diseases but ultimately supported the rise of human civilizations.'
+            },
+            'early-astronomy': {
+                date: 'Ancient Civilizations',
+                title: 'Early Astronomy',
+                text: `
+                    <h3>Celestial Observations</h3>
+                    <p>Ancient civilizations developed sophisticated astronomical knowledge by carefully observing the movements of celestial bodies. These observations were crucial for navigation, agriculture, and religious practices.</p>
+                    
+                    <h3>Major Contributions</h3>
+                    <p>The Babylonians created the first star catalogs and developed mathematical astronomy. Egyptians built pyramids aligned with stars and created a 365-day calendar. Mayans developed incredibly accurate calendars and predicted eclipses.</p>
+                    
+                    <h3>Practical Applications</h3>
+                    <p>Ancient astronomers used their knowledge to predict seasonal changes for farming, navigate across oceans and deserts, and create calendars for religious and civil purposes.</p>
+                `,
+                imageCaption: 'Ancient observatory with astronomers studying the night sky using early instruments',
+                impact: 'Early astronomy laid the foundation for mathematics, physics, and navigation. These observations enabled accurate agricultural planning, long-distance travel, and the development of sophisticated calendars that organized society and religious life.'
+            },
+            'copernicus': {
+                date: '1543',
+                title: 'Copernican Heliocentric Model',
+                text: `
+                    <h3>Revolutionary Cosmology</h3>
+                    <p>Nicolaus Copernicus fundamentally changed our understanding of the cosmos with his heliocentric model, which placed the Sun at the center of the universe instead of Earth. This challenged over 1,000 years of accepted Ptolemaic astronomy.</p>
+                    
+                    <h3>The Work: De Revolutionibus</h3>
+                    <p>"On the Revolutions of the Celestial Spheres" was published in the year of Copernicus's death. The work was initially received with skepticism but laid the groundwork for the Scientific Revolution.</p>
+                    
+                    <h3>Mathematical Innovation</h3>
+                    <p>Copernicus used mathematical calculations to demonstrate that planetary motions could be explained more elegantly with the Sun at the center. His model reduced the number of epicycles needed to explain planetary motion.</p>
+                `,
+                imageCaption: 'Diagram showing the Copernican heliocentric model with planets orbiting the Sun',
+                impact: 'The heliocentric model sparked the Copernican Revolution, challenging religious and philosophical beliefs about humanity\'s place in the universe. It paved the way for later astronomers like Galileo, Kepler, and Newton, ultimately leading to our modern understanding of the solar system and cosmos.'
+            },
+            'vesalius': {
+                date: '1545',
+                title: 'Vesalius and Human Anatomy',
+                text: `
+                    <h3>Revolutionary Medical Study</h3>
+                    <p>Andreas Vesalius revolutionized medical education and practice by conducting detailed dissections of human cadavers and documenting his findings with unprecedented accuracy in "De Humani Corporis Fabrica" (On the Structure of the Human Body).</p>
+                    
+                    <h3>Challenging Galen</h3>
+                    <p>Vesalius corrected over 200 errors in the anatomical works of Galen, the ancient Greek physician whose writings had been accepted as medical truth for over 1,000 years. He proved that Galen had based many observations on animal dissections rather than humans.</p>
+                    
+                    <h3>Detailed Illustrations</h3>
+                    <p>The work featured incredibly detailed and accurate anatomical illustrations, setting a new standard for medical texts and making complex anatomical knowledge accessible to medical students and physicians.</p>
+                `,
+                imageCaption: 'Detailed anatomical illustration from Vesalius\' De Humani Corporis Fabrica',
+                impact: 'Vesalius\' work established anatomy as a scientific discipline based on direct observation rather than ancient authority. This approach became fundamental to medical education and led to significant advances in surgery, medicine, and our understanding of human physiology.'
+            },
+            'galileo-telescope': {
+                date: '1609',
+                title: 'Galileo\'s Telescopic Observations',
+                text: `
+                    <h3>Revolutionary Observations</h3>
+                    <p>Galileo Galilei improved the telescope design and became the first person to systematically observe celestial objects, making discoveries that provided crucial evidence for the heliocentric model of the solar system.</p>
+                    
+                    <h3>Key Discoveries</h3>
+                    <p>Galileo discovered four moons of Jupiter (now called Galilean moons), observed the phases of Venus, saw craters and mountains on Earth's Moon, and discovered that the Milky Way consisted of countless individual stars.</p>
+                    
+                    <h3>Scientific Method</h3>
+                    <p>Galileo combined careful observation with mathematical analysis, establishing principles of the scientific method. He recorded his observations systematically and used them to test theoretical predictions.</p>
+                `,
+                imageCaption: 'Galileo observing the night sky through his telescope, with drawings of his discoveries',
+                impact: 'Galileo\'s telescopic observations provided the first direct evidence supporting Copernican heliocentrism and established observational astronomy as a cornerstone of modern science. His work led to conflict with the Catholic Church but ultimately advanced our understanding of the cosmos.'
+            },
+            'newton-principia': {
+                date: '1687',
+                title: 'Newton\'s Principia Mathematica',
+                text: `
+                    <h3>Universal Laws of Motion</h3>
+                    <p>Isaac Newton's "Mathematical Principles of Natural Philosophy" established the mathematical foundation for classical mechanics and universal gravitation, unifying terrestrial and celestial physics under a single theoretical framework.</p>
+                    
+                    <h3>Three Laws of Motion</h3>
+                    <p>Newton formulated three fundamental laws: objects at rest stay at rest unless acted upon by force (inertia); force equals mass times acceleration (F=ma); and for every action there is an equal and opposite reaction.</p>
+                    
+                    <h3>Universal Gravitation</h3>
+                    <p>The law of universal gravitation explained both why apples fall and why planets orbit the Sun, showing that the same physical laws apply throughout the universe. Newton showed that gravitational force decreases with the square of distance.</p>
+                `,
+                imageCaption: 'Newton working on mathematical calculations with the famous apple tree in the background',
+                impact: 'Newton\'s work established physics as a mathematical science and provided the theoretical foundation for the Industrial Revolution. His laws remained unchallenged until Einstein\'s relativity, and they still accurately describe motion in most everyday situations.'
+            },
+            'hooke-cells': {
+                date: '1665',
+                title: 'Hooke\'s Discovery of Cells',
+                text: `
+                    <h3>First View of the Microscopic World</h3>
+                    <p>Robert Hooke's "Micrographia" was the first major work to describe observations made with a microscope. While examining thin slices of cork, Hooke observed small, box-like structures that reminded him of monastery cells.</p>
+                    
+                    <h3>Microscopic Illustrations</h3>
+                    <p>The book contained detailed illustrations of insects, plants, and other small objects as seen through a microscope, revealing a previously invisible world of intricate detail and complexity.</p>
+                    
+                    <h3>Foundation of Cell Theory</h3>
+                    <p>Although Hooke was actually observing dead cell walls in cork, his work laid the groundwork for later scientists to develop cell theory - the understanding that all living things are composed of cells.</p>
+                `,
+                imageCaption: 'Hooke\'s famous illustration of cork cells as seen through his microscope',
+                impact: 'Hooke\'s work opened up the microscopic world to scientific investigation and introduced the term "cell" to biology. This discovery eventually led to the understanding that cells are the fundamental units of all life, revolutionizing biology and medicine.'
+            },
+            'darwin-evolution': {
+                date: '1859',
+                title: 'Darwin\'s Theory of Evolution',
+                text: `
+                    <h3>Natural Selection</h3>
+                    <p>Charles Darwin's "On the Origin of Species" presented overwhelming evidence for evolution and proposed natural selection as the mechanism driving evolutionary change. Darwin showed how species change over time through differential survival and reproduction.</p>
+                    
+                    <h3>Supporting Evidence</h3>
+                    <p>Darwin gathered evidence from geology, paleontology, biogeography, embryology, and artificial selection in domestic animals and plants. His observations during the voyage of the Beagle were particularly influential.</p>
+                    
+                    <h3>Revolutionary Implications</h3>
+                    <p>The theory suggested that all life forms share common ancestors and that humans evolved from earlier species, challenging prevailing religious and philosophical views about the special creation of species.</p>
+                `,
+                imageCaption: 'Darwin studying finches and other specimens from the Galápagos Islands',
+                impact: 'Darwin\'s theory of evolution unified all of biology under a single explanatory framework and became the central organizing principle of modern life sciences. It revolutionized our understanding of life\'s diversity and humanity\'s place in nature.'
+            },
+            'mendeleev-periodic': {
+                date: '1869',
+                title: 'Mendeleev\'s Periodic Table',
+                text: `
+                    <h3>Organizing the Elements</h3>
+                    <p>Dmitri Mendeleev arranged the known chemical elements by atomic weight and noticed that elements with similar properties appeared at regular intervals, leading him to predict the existence and properties of undiscovered elements.</p>
+                    
+                    <h3>Predictive Power</h3>
+                    <p>Mendeleev left gaps in his table for unknown elements and predicted their properties. When gallium, scandium, and germanium were later discovered, their properties matched his predictions remarkably well.</p>
+                    
+                    <h3>Periodic Law</h3>
+                    <p>Mendeleev established that the properties of elements are periodic functions of their atomic weights, though we now know it\'s actually their atomic numbers (number of protons) that determine periodicity.</p>
+                `,
+                imageCaption: 'Mendeleev\'s original periodic table with gaps for predicted elements',
+                impact: 'The periodic table became the organizing principle of chemistry and physics, enabling scientists to predict chemical behavior, discover new elements, and understand atomic structure. It remains one of the most important tools in science.'
+            },
+            'einstein-relativity': {
+                date: '1905',
+                title: 'Einstein\'s Theory of Relativity',
+                text: `
+                    <h3>Revolutionary Physics</h3>
+                    <p>Albert Einstein\'s special theory of relativity fundamentally changed our understanding of space, time, mass, and energy. He showed that space and time are interwoven and that the speed of light is constant for all observers.</p>
+                    
+                    <h3>Key Insights</h3>
+                    <p>Einstein demonstrated that time dilates and length contracts at high speeds, that mass and energy are equivalent (E=mc²), and that nothing can travel faster than light. These insights overturned Newton\'s absolute space and time.</p>
+                    
+                    <h3>Experimental Confirmation</h3>
+                    <p>Einstein\'s predictions have been confirmed by countless experiments, from particle accelerators to GPS satellites, which must account for relativistic effects to function accurately.</p>
+                `,
+                imageCaption: 'Einstein at a blackboard showing his famous equation E=mc²',
+                impact: 'Relativity revolutionized physics and led to technologies like nuclear power, GPS navigation, and particle accelerators. It also provided the theoretical foundation for understanding black holes, the expansion of the universe, and gravitational waves.'
+            },
+            'dna-discovery': {
+                date: '1953',
+                title: 'Discovery of DNA Structure',
+                text: `
+                    <h3>The Double Helix</h3>
+                    <p>James Watson, Francis Crick, Maurice Wilkins, and Rosalind Franklin discovered the double helix structure of DNA, revealing how genetic information is stored and transmitted from generation to generation.</p>
+                    
+                    <h3>X-ray Crystallography</h3>
+                    <p>Rosalind Franklin\'s X-ray crystallography images, particularly "Photo 51," provided crucial evidence for the helical structure and the spacing of base pairs in the DNA molecule.</p>
+                    
+                    <h3>Base Pairing Rules</h3>
+                    <p>The discovery revealed that adenine pairs with thymine and guanine pairs with cytosine, explaining how DNA can replicate itself accurately and how genetic information is encoded in the sequence of bases.</p>
+                `,
+                imageCaption: 'The iconic double helix structure of DNA with base pairs clearly visible',
+                impact: 'Understanding DNA structure launched the molecular biology revolution, leading to genetic engineering, DNA sequencing, gene therapy, forensic science, and biotechnology. It provided the foundation for understanding heredity at the molecular level.'
+            },
+            'moon-landing': {
+                date: '1969',
+                title: 'Apollo 11 Moon Landing',
+                text: `
+                    <h3>Historic Achievement</h3>
+                    <p>On July 20, 1969, Neil Armstrong and Buzz Aldrin became the first humans to walk on the Moon while Michael Collins orbited above. This achievement fulfilled President Kennedy\'s goal of landing on the Moon before the end of the 1960s.</p>
+                    
+                    <h3>Technological Marvel</h3>
+                    <p>The Apollo program required unprecedented coordination of technology, science, and human resources. The Saturn V rocket remains one of the most powerful rockets ever successfully flown, and the mission required innovations in computing, materials, and life support.</p>
+                    
+                    <h3>Scientific Returns</h3>
+                    <p>The astronauts collected 21.5 kg of lunar samples, conducted experiments, and provided detailed observations of the lunar surface. This data revolutionized our understanding of the Moon\'s formation and the early solar system.</p>
+                `,
+                imageCaption: 'Buzz Aldrin walking on the lunar surface with Earth visible in his helmet reflection',
+                impact: 'The Moon landing demonstrated humanity\'s capability for extraordinary achievement through science and technology. It inspired generations of scientists and engineers and led to numerous technological innovations that benefit life on Earth, from computer miniaturization to advanced materials.'
+            },
+            'human-genome': {
+                date: '2001',
+                title: 'Human Genome Project',
+                text: `
+                    <h3>Mapping Human DNA</h3>
+                    <p>The Human Genome Project was an international scientific research project that successfully mapped and sequenced the entire human genome, identifying approximately 20,000-25,000 genes and 3 billion DNA base pairs.</p>
+                    
+                    <h3>International Collaboration</h3>
+                    <p>This massive undertaking involved scientists from the United States, United Kingdom, Japan, France, Germany, and China. It was completed ahead of schedule and under budget, taking 13 years and costing about $3 billion.</p>
+                    
+                    <h3>Technological Innovation</h3>
+                    <p>The project drove the development of automated DNA sequencing technologies, bioinformatics tools, and computational methods that are now standard in genomic research.</p>
+                `,
+                imageCaption: 'Scientists working with DNA sequencing equipment and computer displays showing genetic data',
+                impact: 'The Human Genome Project launched the era of personalized medicine, enabling genetic testing for diseases, targeted drug therapies, and understanding of genetic disorders. It has accelerated research in cancer, rare diseases, and pharmacogenomics.'
+            },
+            'higgs-boson': {
+                date: '2012',
+                title: 'Discovery of the Higgs Boson',
+                text: `
+                    <h3>The God Particle</h3>
+                    <p>The Higgs boson, often called the "God particle," was discovered at CERN\'s Large Hadron Collider. This particle is associated with the Higgs field, which gives mass to other fundamental particles.</p>
+                    
+                    <h3>Theoretical Prediction</h3>
+                    <p>The particle was theoretically predicted by Peter Higgs and others in the 1960s as part of the Standard Model of particle physics. Its discovery confirmed a key prediction of this fundamental theory.</p>
+                    
+                    <h3>Experimental Challenge</h3>
+                    <p>Finding the Higgs boson required the most powerful particle accelerator ever built and analysis of trillions of particle collisions. The discovery was announced jointly by the ATLAS and CMS experiments at CERN.</p>
+                `,
+                imageCaption: 'The Large Hadron Collider at CERN with particle collision data displays',
+                impact: 'The discovery of the Higgs boson completed the Standard Model of particle physics and enhanced our understanding of why particles have mass. This fundamental knowledge may lead to new technologies and deeper insights into the nature of reality itself.'
+            }
+        };
+
+        // Function to open modal with discovery details
+        function openModal(discoveryKey) {
+            const data = discoveryData[discoveryKey];
+            if (!data) return;
+
+            document.getElementById('modalDate').textContent = data.date;
+            document.getElementById('modalTitle').textContent = data.title;
+            document.getElementById('modalText').innerHTML = data.text;
+            document.getElementById('modalImageCaption').textContent = data.imageCaption;
+            document.getElementById('modalImpact').textContent = data.impact;
+
+            document.getElementById('detailModal').classList.add('show');
+            document.body.style.overflow = 'hidden';
+        }
+
+        // Function to close modal
+        function closeModal() {
+            document.getElementById('detailModal').classList.remove('show');
+            document.body.style.overflow = 'auto';
+        }
+
+        // Close modal when clicking outside content
+        document.getElementById('detailModal').addEventListener('click', function(e) {
+            if (e.target === this) {
+                closeModal();
+            }
+        });
+
+        // Close modal with Escape key
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') {
+                closeModal();
+            }
+        });
+
+        // Animation timing for timeline items
         const timelineItems = document.querySelectorAll('.timeline-item');
-        
-        // Spaced repetition timing for animations
         timelineItems.forEach((item, index) => {
             item.style.animationDelay = `${index * 0.15}s`;
         });
-
-        // Active learning through interaction
-        const timelineContents = document.querySelectorAll('.timeline-content');
-        
-        timelineContents.forEach(content => {
-            content.addEventListener('click', function() {
-                // Remove previous highlights
-                timelineContents.forEach(c => c.classList.remove('highlighted'));
-                
-                // Add highlight to clicked item
-                this.classList.add('highlighted');
-                this.style.transform = 'scale(1.02)';
-                this.style.boxShadow = '0 8px 25px rgba(76, 175, 80, 0.3)';
-                this.style.borderColor = '#4caf50';
-                
-                // Reset after 3 seconds (optimal attention span)
-                setTimeout(() => {
-                    this.style.transform = '';
-                    this.style.boxShadow = '';
-                    this.style.borderColor = '';
-                }, 3000);
-            });
-
-            // Keyboard accessibility for learning
-            content.addEventListener('keypress', function(e) {
-                if (e.key === 'Enter' || e.key === ' ') {
-                    this.click();
-                }
-            });
-        });
-
-        // Intersection Observer for progressive revelation (reduces cognitive load)
-        const observerOptions = {
-            threshold: 0.2,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.style.opacity = '1';
-                    entry.target.style.transform = 'translateY(0)';
-                }
-            });
-        }, observerOptions);
-
-        // Observe all timeline items for progressive disclosure
-        timelineItems.forEach(item
+    </script>
