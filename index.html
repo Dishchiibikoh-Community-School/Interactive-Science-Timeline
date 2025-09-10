@@ -4,693 +4,668 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Interactive Science Timeline</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
         body {
-            font-family: 'Inter', sans-serif;
-            background-color: #0a0a2a;
-            color: #e0e0ff;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            color: #333;
             overflow-x: hidden;
         }
 
-        /* --- Animated Starry Background --- */
-        @keyframes move-stars {
-            from {
-                transform: translateY(0px);
-            }
-            to {
-                transform: translateY(-2000px);
-            }
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
         }
 
-        .stars, .stars-2, .stars-3 {
+        .header {
+            text-align: center;
+            padding: 40px 0;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 20px;
+            margin-bottom: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .header h1 {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+        }
+
+        .header p {
+            font-size: 1.2rem;
+            color: rgba(255, 255, 255, 0.9);
+            margin-bottom: 20px;
+        }
+
+        .habit-banner {
+            background: linear-gradient(45deg, #ff6b6b, #feca57);
+            padding: 15px 30px;
+            border-radius: 50px;
+            display: inline-block;
+            color: white;
+            font-weight: bold;
+            font-size: 1.1rem;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .timeline {
+            position: relative;
+            padding: 20px 0;
+        }
+
+        .timeline::before {
+            content: '';
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 4px;
+            height: 100%;
+            background: linear-gradient(to bottom, #ff6b6b, #4ecdc4, #45b7d1, #96ceb4, #feca57, #ff9ff3);
+            border-radius: 2px;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+        }
+
+        .era {
+            margin-bottom: 60px;
+        }
+
+        .era-title {
+            text-align: center;
+            font-size: 2.5rem;
+            color: white;
+            margin-bottom: 40px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .event {
+            position: relative;
+            margin-bottom: 40px;
+            opacity: 0;
+            transform: translateY(50px);
+            transition: all 0.6s ease;
+        }
+
+        .event.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        .event:nth-child(even) .event-content {
+            margin-left: auto;
+            margin-right: 60px;
+            text-align: right;
+        }
+
+        .event:nth-child(odd) .event-content {
+            margin-left: 60px;
+            margin-right: auto;
+        }
+
+        .event-content {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
+            max-width: 500px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .event-content::before {
+            content: '';
             position: absolute;
             top: 0;
-            right: 0;
             left: 0;
-            bottom: 0;
-            width: 100%;
-            height: 100%;
-            display: block;
-            background: transparent;
+            right: 0;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            transform: scaleX(0);
+            transition: transform 0.3s ease;
         }
 
-        .stars {
-            background-image: radial-gradient(1px 1px at 20px 30px, #eee, rgba(0,0,0,0)), radial-gradient(1px 1px at 40px 70px, #fff, rgba(0,0,0,0)), radial-gradient(1px 1px at 50px 160px, #ddd, rgba(0,0,0,0)), radial-gradient(1px 1px at 90px 40px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 130px 80px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 160px 120px, #ddd, rgba(0,0,0,0));
-            background-repeat: repeat;
-            background-size: 200px 200px;
-            animation: move-stars 120s linear infinite;
+        .event-content:hover::before {
+            transform: scaleX(1);
         }
 
-        .stars-2 {
-            background-image: radial-gradient(1px 1px at 10px 50px, #eee, rgba(0,0,0,0)), radial-gradient(1px 1px at 80px 110px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 120px 40px, #ddd, rgba(0,0,0,0)), radial-gradient(2px 2px at 170px 180px, #fff, rgba(0,0,0,0)), radial-gradient(1px 1px at 190px 90px, #fff, rgba(0,0,0,0));
-            background-repeat: repeat;
-            background-size: 250px 250px;
-            animation: move-stars 100s linear infinite;
-        }
-        
-        .stars-3 {
-             background-image: radial-gradient(2px 2px at 50px 70px, #eee, rgba(0,0,0,0)), radial-gradient(3px 3px at 180px 130px, #fff, rgba(0,0,0,0)), radial-gradient(2px 2px at 100px 20px, #ddd, rgba(0,0,0,0));
-            background-repeat: repeat;
-            background-size: 300px 300px;
-            animation: move-stars 80s linear infinite;
-        }
-        /* --- End Starry Background --- */
-
-
-        .timeline-item {
-            opacity: 0;
-            transform: translateY(50px) scale(0.95);
-            transition: opacity 0.6s ease-out, transform 0.6s ease-out;
+        .event-content:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
         }
 
-        .timeline-item.is-visible {
-            opacity: 1;
-            transform: translateY(0) scale(1);
+        .event-date {
+            font-weight: bold;
+            font-size: 1.1rem;
+            color: #667eea;
+            margin-bottom: 10px;
         }
 
-        /* Glassmorphism effect */
-        .glass-card {
-            background: rgba(20, 20, 50, 0.4);
-            backdrop-filter: blur(10px);
-            -webkit-backdrop-filter: blur(10px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: all 0.3s ease;
-        }
-        .glass-card:hover {
-            background: rgba(30, 30, 60, 0.6);
-            transform: translateY(-5px) scale(1.02);
-            box-shadow: 0 0 25px rgba(120, 80, 255, 0.3);
-        }
-        
-        /* Custom timeline line and dots */
-        .timeline-line {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 3px;
-            height: 100%;
-            background-image: linear-gradient(to bottom, #4f46e5, #9333ea, #db2777);
-            z-index: 1;
+        .event-title {
+            font-size: 1.3rem;
+            font-weight: bold;
+            color: #333;
+            margin-bottom: 15px;
+            line-height: 1.4;
         }
 
-        .timeline-dot {
-            position: absolute;
-            left: 50%;
-            transform: translateX(-50%);
-            width: 1.25rem;
-            height: 1.25rem;
-            border-radius: 50%;
-            border: 3px solid #e0e0ff;
-            background-color: #0a0a2a;
-            z-index: 10;
-            transition: all 0.3s ease;
+        .event-description {
+            color: #666;
+            line-height: 1.6;
+            margin-bottom: 15px;
         }
 
-        .timeline-item:hover .timeline-dot {
-            background-color: #9333ea;
-            transform: translateX(-50%) scale(1.2);
-        }
-        
-        /* Hide scrollbar */
-        html {
-            scrollbar-width: none; /* For Firefox */
-        }
-        body::-webkit-scrollbar, #chat-history::-webkit-scrollbar {
-            display: none; /* For Chrome, Safari, and Opera */
-        }
-        #chat-history {
-             scrollbar-width: none; /* For Firefox */
-        }
-        
-        /* Modal Styles */
-        #gemini-modal.flex #modal-content {
-            transform: scale(1);
-            opacity: 1;
-        }
-        .chat-bubble {
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 15px;
-            word-wrap: break-word;
-        }
-        .chat-bubble.user {
-            background-color: #4f46e5;
+        .event-significance {
+            background: linear-gradient(135deg, #667eea, #764ba2);
             color: white;
-            align-self: flex-end;
-            border-bottom-right-radius: 5px;
-        }
-        .chat-bubble.assistant {
-            background-color: #2c2c54;
-            color: #e0e0ff;
-            align-self: flex-start;
-            border-bottom-left-radius: 5px;
+            padding: 12px;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-top: 15px;
         }
 
-        .era-header {
-            position: relative;
-            z-index: 5; /* Sit on top of the timeline line */
-            background-color: #0a0a2a; /* Match body background to hide the line */
-            padding-top: 1rem;
-            padding-bottom: 1rem;
+        .event-significance::before {
+            content: '💡 ';
+            margin-right: 5px;
+        }
+
+        .event-marker {
+            position: absolute;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 20px;
+            height: 20px;
+            background: white;
+            border-radius: 50%;
+            border: 4px solid #667eea;
+            box-shadow: 0 0 15px rgba(102, 126, 234, 0.5);
+            z-index: 10;
+        }
+
+        .event:nth-child(even) .event-marker {
+            background: #4ecdc4;
+            border-color: #4ecdc4;
+            box-shadow: 0 0 15px rgba(78, 205, 196, 0.5);
+        }
+
+        .footer {
+            text-align: center;
+            padding: 40px;
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border-radius: 15px;
+            margin-top: 40px;
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .progress-bar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 0%;
+            height: 4px;
+            background: linear-gradient(90deg, #ff6b6b, #4ecdc4, #45b7d1);
+            z-index: 1000;
+            transition: width 0.3s ease;
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 2rem;
+            }
+
+            .era-title {
+                font-size: 1.8rem;
+            }
+
+            .timeline::before {
+                left: 30px;
+            }
+
+            .event-content {
+                margin-left: 60px !important;
+                margin-right: 20px !important;
+                text-align: left !important;
+            }
+
+            .event-marker {
+                left: 30px !important;
+                transform: translateX(-50%) !important;
+            }
+
+            .container {
+                padding: 10px;
+            }
+        }
+
+        .scroll-hint {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            color: white;
+            font-size: 0.9rem;
+            animation: bounce 2s infinite;
+            z-index: 100;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateX(-50%) translateY(0); }
+            40% { transform: translateX(-50%) translateY(-10px); }
+            60% { transform: translateX(-50%) translateY(-5px); }
         }
     </style>
 </head>
-<body class="antialiased">
-    <!-- Starry Background -->
-    <div class="fixed top-0 left-0 w-full h-full -z-10">
-        <div class="stars"></div>
-        <div class="stars-2"></div>
-        <div class="stars-3"></div>
-    </div>
-
-    <div class="container mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        
-        <!-- Header -->
-        <header class="text-center mb-16">
-            <h1 class="text-4xl sm:text-5xl md:text-6xl font-bold tracking-tight text-white mb-4">
-                <span class="bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 via-purple-400 to-pink-400">
-                    Interactive Science Timeline
-                </span>
-            </h1>
-            <p class="text-lg text-indigo-200">A Journey Through Scientific Discovery</p>
-        </header>
-
-        <!-- Timeline -->
-        <div class="relative wrap overflow-hidden p-10 h-full">
-            <div class="timeline-line hidden md:block"></div>
-            
-            <!-- Era Headers -->
-            <div class="text-center my-8 md:my-12 era-header">
-                <h2 class="text-3xl font-bold text-white tracking-wider">Prehistoric Era (before 1500 CE)</h2>
-            </div>
-            
-            <!-- Timeline Item -->
-            <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div>
-                <div class="z-20 flex items-center order-1 hidden md:flex">
-                    <div class="timeline-dot"></div>
-                </div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">~2.5 million years ago</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">First Stone Tools</h3>
-                    <p class="text-sm leading-snug tracking-wide text-gray-300 text-opacity-100">Early humans (Homo habilis) created simple stone tools for cutting and hunting.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Marked the beginning of technology and gave humans an evolutionary advantage.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="First Stone Tools">Ask a Question 🤔</button>
-                </div>
-            </div>
-
-            <!-- Timeline Item -->
-            <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div>
-                <div class="z-20 flex items-center order-1 hidden md:flex">
-                     <div class="timeline-dot"></div>
-                </div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">~1 million years ago</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Control of Fire</h3>
-                    <p class="text-sm leading-snug tracking-wide text-gray-300 text-opacity-100">Evidence shows early humans learned to make and control fire.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Provided warmth, protection, cooking, and social gathering, shaping human evolution.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="The Control of Fire by Early Humans">Ask a Question 🤔</button>
-                </div>
-            </div>
-            
-            <!-- Timeline Item -->
-             <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div>
-                <div class="z-20 flex items-center order-1 hidden md:flex">
-                    <div class="timeline-dot"></div>
-                </div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">~10,000 BCE</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Development of Agriculture</h3>
-                    <p class="text-sm leading-snug tracking-wide text-gray-300 text-opacity-100">Humans began farming in the Fertile Crescent and other regions.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Led to permanent settlements, population growth, and the rise of civilizations.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="The Development of Agriculture">Ask a Question 🤔</button>
-                </div>
-            </div>
-
-            <!-- Timeline Item -->
-            <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div>
-                <div class="z-20 flex items-center order-1 hidden md:flex">
-                     <div class="timeline-dot"></div>
-                </div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">Ancient Civilizations</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Early Astronomy</h3>
-                    <p class="text-sm leading-snug tracking-wide text-gray-300 text-opacity-100">Egyptians, Babylonians, and Mayans tracked stars and planets to create calendars.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Allowed for accurate farming cycles, navigation, and early scientific thought.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Early Astronomy in Ancient Civilizations">Ask a Question 🤔</button>
-                </div>
-            </div>
-
-            <!-- Era Headers -->
-            <div class="text-center my-8 md:my-12 era-header">
-                <h2 class="text-3xl font-bold text-white tracking-wider">1500s - The Dawn of Modern Science</h2>
-            </div>
-            
-            <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1543</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Copernicus & Heliocentrism</h3>
-                    <p class="text-sm leading-snug tracking-wide text-gray-300 text-opacity-100">Publishes "On the Revolutions of the Celestial Spheres," proposing the Sun-centered model of the universe.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Challenged geocentric belief and reshaped astronomy.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Copernicus and the Heliocentric Model">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1545</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Andreas Vesalius & Human Anatomy</h3>
-                    <p class="text-sm leading-snug tracking-wide text-gray-300 text-opacity-100">Publishes "De Humani Corporis Fabrica," the first detailed and accurate study of human anatomy.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Corrected ancient misconceptions and advanced medicine and surgery.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Andreas Vesalius's study of Human Anatomy">Ask a Question 🤔</button>
-                </div>
-            </div>
-             <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1572</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Tycho Brahe & the Supernova</h3>
-                    <p class="text-sm leading-snug tracking-wide text-gray-300 text-opacity-100">Proved the heavens were not unchanging, contradicting Aristotelian views.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Paved the way for modern astronomy and understanding of stellar life cycles.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Tycho Brahe's Observation of a Supernova">Ask a Question 🤔</button>
-                </div>
-            </div>
-             <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1590s</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Invention of the Compound Microscope</h3>
-                    <p class="text-sm leading-snug tracking-wide text-gray-300 text-opacity-100">Attributed to Hans & Zacharias Janssen.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Allowed scientists to study microorganisms and cells for the first time.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="The Invention of the Compound Microscope">Ask a Question 🤔</button>
-                </div>
-            </div>
-           
-            <div class="text-center my-8 md:my-12 era-header"><h2 class="text-3xl font-bold text-white tracking-wider">1600s - Scientific Revolution</h2></div>
-            <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1609</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Galileo Improves the Telescope</h3>
-                    <p class="text-sm">Observed Jupiter's moons, lunar craters, and phases of Venus.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Provided strong evidence for heliocentrism.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Galileo's Telescope Improvements">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1620</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Francis Bacon & Scientific Method</h3>
-                    <p class="text-sm">Publishes "Novum Organum," introducing the scientific method.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Laid the foundation for modern scientific inquiry.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Francis Bacon and the Scientific Method">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1665</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Robert Hooke Discovers Cells</h3>
-                    <p class="text-sm">Publishes "Micrographia," coining the term "cell".</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Birth of cell theory in biology.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Robert Hooke's Discovery of Cells">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1687</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Isaac Newton's Principia Mathematica</h3>
-                    <p class="text-sm">Defined laws of motion and universal gravitation.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Revolutionized physics and astronomy.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Isaac Newton's Principia Mathematica">Ask a Question 🤔</button>
-                </div>
-            </div>
-
-            <div class="text-center my-8 md:my-12 era-header"><h2 class="text-3xl font-bold text-white tracking-wider">1700s - Enlightenment & Discovery</h2></div>
-            <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1735</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Carl Linnaeus & Systema Naturae</h3>
-                    <p class="text-sm">Introduced binomial nomenclature, the system for naming species.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Foundation of modern biological classification.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Carl Linnaeus's Systema Naturae">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1752</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Benjamin Franklin's Kite Experiment</h3>
-                    <p class="text-sm">Demonstrated that lightning is electricity.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Led to the invention of the lightning rod and advanced electrical science.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Benjamin Franklin's Kite Experiment">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1774</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Joseph Priestley Discovers Oxygen</h3>
-                    <p class="text-sm">Identified a gas that supported combustion and respiration.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Fundamental to chemistry and medicine.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Joseph Priestley's Discovery of Oxygen">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1785</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">James Hutton & Uniformitarianism</h3>
-                    <p class="text-sm">Proposed that Earth's features formed over long periods through gradual processes.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Laid groundwork for modern geology.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="James Hutton's Theory of Uniformitarianism">Ask a Question 🤔</button>
-                </div>
-            </div>
-            
-            <div class="text-center my-8 md:my-12 era-header"><h2 class="text-3xl font-bold text-white tracking-wider">1800s - Age of Invention & Modern Biology</h2></div>
-            <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1800</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Alessandro Volta Invents the Battery</h3>
-                    <p class="text-sm">First true source of continuous electrical current.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Enabled experiments that fueled the study of electricity and chemistry.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Alessandro Volta's Invention of the Battery">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1827</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Georg Ohm Formulates Ohm's Law</h3>
-                    <p class="text-sm">Relationship between voltage, current, and resistance.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Fundamental principle for electrical circuits and modern electronics.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Georg Ohm's Formulation of Ohm's Law">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1859</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Charles Darwin's "On the Origin of Species"</h3>
-                    <p class="text-sm">Introduced the theory of evolution by natural selection.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Revolutionized biology, medicine, and our understanding of life.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Charles Darwin's On the Origin of Species">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1869</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Dmitri Mendeleev Creates the Periodic Table</h3>
-                    <p class="text-sm">Organized chemical elements by atomic weight and properties.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Provided a framework for modern chemistry and predicted new elements.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Dmitri Mendeleev's Creation of the Periodic Table">Ask a Question 🤔</button>
-                </div>
-            </div>
-            
-            <div class="text-center my-8 md:my-12 era-header"><h2 class="text-3xl font-bold text-white tracking-wider">1900s - Breakthroughs & Space Age</h2></div>
-            <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1905</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Albert Einstein's "Annus Mirabilis"</h3>
-                    <p class="text-sm">Introduced special relativity and groundbreaking physics theories.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Changed our understanding of time, space, and energy.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Albert Einstein's Annus Mirabilis Papers">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1928</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Alexander Fleming Discovers Penicillin</h3>
-                    <p class="text-sm">First true antibiotic, revolutionizing medicine and saving millions of lives.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Alexander Fleming's Discovery of Penicillin">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1953</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Watson & Crick Describe DNA Structure</h3>
-                    <p class="text-sm">Discovery of the double helix with key contributions from Rosalind Franklin.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Foundation of molecular biology and genetics.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="Watson and Crick's Description of DNA Structure">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">1969</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Apollo 11 Moon Landing</h3>
-                    <p class="text-sm">Neil Armstrong and Buzz Aldrin became the first humans to walk on the Moon.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Major milestones in space exploration and human achievement.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="The Apollo 11 Moon Landing">Ask a Question 🤔</button>
-                </div>
-            </div>
-
-            <div class="text-center my-8 md:my-12 era-header"><h2 class="text-3xl font-bold text-white tracking-wider">2000s - 21st Century Science</h2></div>
-            <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">2001</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Human Genome Project Draft</h3>
-                    <p class="text-sm">First map of all human genes.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Revolutionized medicine, genetics, and biotechnology.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="The Human Genome Project">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">2007</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Launch of the iPhone</h3>
-                    <p class="text-sm">Combined phone, music player, and internet into one device.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Transformed communication, computing, and global culture.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="The Launch of the iPhone">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between items-center w-full right-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">2012</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">Discovery of the Higgs Boson</h3>
-                    <p class="text-sm">Confirmed the existence of the Higgs field, essential for understanding mass.</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Major victory for particle physics and the Standard Model.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="The Discovery of the Higgs Boson">Ask a Question 🤔</button>
-                </div>
-            </div>
-            <div class="mb-8 flex justify-between flex-row-reverse items-center w-full left-timeline timeline-item">
-                <div class="order-1 w-5/12 hidden md:block"></div><div class="z-20 flex items-center order-1 hidden md:flex"><div class="timeline-dot"></div></div>
-                <div class="order-1 md:w-5/12 w-full p-6 rounded-lg shadow-xl glass-card">
-                    <p class="mb-3 text-sm font-semibold text-indigo-300">2019/2020</p>
-                    <h3 class="mb-3 font-bold text-white text-xl">First Image of a Black Hole</h3>
-                    <p class="text-sm">Captured by the Event Horizon Telescope (M87 Galaxy).</p>
-                    <p class="text-sm mt-3 font-semibold text-purple-300">Significance: Historic proof of Einstein's theory of general relativity on a cosmic scale.</p>
-                    <button class="ask-btn mt-4 inline-block bg-purple-600 hover:bg-purple-700 text-white font-bold py-2 px-4 rounded-lg transition-transform transform hover:scale-105" data-event-title="The First Image of a Black Hole">Ask a Question 🤔</button>
-                </div>
-            </div>
-
+<body>
+    <div class="progress-bar" id="progressBar"></div>
+    
+    <div class="container">
+        <div class="header">
+            <h1>Interactive Science Timeline</h1>
+            <p>Detailed Events Throughout History</p>
+            <div class="habit-banner">Habit 4 – Think Win–Win: your win + my win = OUR WIN</div>
         </div>
-        
-        <!-- Footer -->
-        <footer class="text-center mt-16 py-8 border-t border-indigo-500/20">
-            <h3 class="text-2xl font-bold text-white">Habit 4 - Think Win-Win</h3>
-            <p class="text-indigo-200 mt-2">Let's Make It a Habit!</p>
-            <p class="mt-4 text-lg font-semibold bg-clip-text text-transparent bg-gradient-to-r from-green-300 via-cyan-300 to-blue-300">
-                your win + my win = OUR WIN
-            </p>
-            <p class="text-xs text-gray-500 mt-4">rbbalagtasii</p>
-        </footer>
 
-    </div>
+        <div class="timeline" id="timeline">
+            <!-- Prehistoric Era -->
+            <div class="era">
+                <h2 class="era-title">Prehistoric Era (before 1500 CE)</h2>
+                
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">~2.5 million years ago</div>
+                        <div class="event-title">First Stone Tools</div>
+                        <div class="event-description">Early humans (Homo habilis) created simple stone tools for cutting and hunting.</div>
+                        <div class="event-significance">Marked the beginning of technology and gave humans an evolutionary advantage.</div>
+                    </div>
+                </div>
 
-    <!-- Gemini Modal -->
-    <div id="gemini-modal" class="fixed inset-0 bg-black bg-opacity-70 backdrop-blur-sm flex justify-center items-center z-50 hidden">
-        <div id="modal-content" class="bg-gray-800/90 text-white rounded-lg shadow-2xl p-6 w-11/12 md:w-1/2 max-w-2xl transform transition-all duration-300 scale-95 opacity-0 flex flex-col">
-            <div class="flex justify-between items-center mb-4 flex-shrink-0">
-                <h2 id="modal-title" class="text-xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-indigo-400 to-pink-400">Ask about...</h2>
-                <button id="modal-close" class="text-gray-400 hover:text-white text-3xl">&times;</button>
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">~1 million years ago</div>
+                        <div class="event-title">Control of Fire</div>
+                        <div class="event-description">Evidence shows early humans learned to make and control fire.</div>
+                        <div class="event-significance">Provided warmth, protection, cooking, and social gathering, shaping human evolution.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">~10,000 BCE</div>
+                        <div class="event-title">Development of Agriculture</div>
+                        <div class="event-description">Humans began farming in the Fertile Crescent and other regions.</div>
+                        <div class="event-significance">Led to permanent settlements, population growth, and the rise of civilizations.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">Ancient Civilizations</div>
+                        <div class="event-title">Early Astronomy</div>
+                        <div class="event-description">Egyptians, Babylonians, and Mayans tracked stars and planets to create calendars.</div>
+                        <div class="event-significance">Allowed for accurate farming cycles, navigation, and early scientific thought.</div>
+                    </div>
+                </div>
             </div>
-            <div id="chat-history" class="flex-grow space-y-4 mb-4 h-80 overflow-y-auto p-3 bg-gray-900/70 rounded-lg flex flex-col">
-                <!-- Messages will be injected here -->
+
+            <!-- 1500s -->
+            <div class="era">
+                <h2 class="era-title">1500s – The Dawn of Modern Science</h2>
+                
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1543</div>
+                        <div class="event-title">Copernicus Publishes On the Revolutions of the Celestial Spheres</div>
+                        <div class="event-description">Proposed the heliocentric model, placing the Sun at the center of the universe instead of Earth.</div>
+                        <div class="event-significance">Challenged centuries of geocentric belief and reshaped astronomy.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1545</div>
+                        <div class="event-title">Andreas Vesalius Publishes De Humani Corporis Fabrica</div>
+                        <div class="event-description">First detailed and accurate study of human anatomy.</div>
+                        <div class="event-significance">Corrected ancient misconceptions and advanced medicine and surgery.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1572</div>
+                        <div class="event-title">Tycho Brahe Observes a Supernova</div>
+                        <div class="event-description">Proved the heavens were not unchanging, contradicting Aristotelian views.</div>
+                        <div class="event-significance">Paved the way for modern astronomy and understanding of stellar life cycles.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1590s</div>
+                        <div class="event-title">Invention of the Compound Microscope</div>
+                        <div class="event-description">Attributed to Hans & Zacharias Janssen.</div>
+                        <div class="event-significance">Allowed scientists to study microorganisms and cells for the first time.</div>
+                    </div>
+                </div>
             </div>
-            <div id="loader" class="text-center my-2 hidden flex-shrink-0">
-                 <p class="text-sm text-gray-400">Gemini is thinking...</p>
+
+            <!-- 1600s -->
+            <div class="era">
+                <h2 class="era-title">1600s – Scientific Revolution</h2>
+                
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1609</div>
+                        <div class="event-title">Galileo Improves the Telescope</div>
+                        <div class="event-description">Observed Jupiter's moons, lunar craters, and phases of Venus.</div>
+                        <div class="event-significance">Provided strong evidence for heliocentrism.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1620</div>
+                        <div class="event-title">Francis Bacon Publishes Novum Organum</div>
+                        <div class="event-description">Introduced the scientific method, emphasizing observation and experimentation.</div>
+                        <div class="event-significance">Laid the foundation for modern scientific inquiry.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1665</div>
+                        <div class="event-title">Robert Hooke Publishes Micrographia</div>
+                        <div class="event-description">Coined the term "cell" while observing cork under a microscope.</div>
+                        <div class="event-significance">Birth of cell theory in biology.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1687</div>
+                        <div class="event-title">Isaac Newton Publishes Principia Mathematica</div>
+                        <div class="event-description">Defined laws of motion and universal gravitation.</div>
+                        <div class="event-significance">Revolutionized physics and astronomy.</div>
+                    </div>
+                </div>
             </div>
-            <form id="chat-form" class="flex items-center space-x-2 flex-shrink-0">
-                <input type="text" id="chat-input" class="flex-grow bg-gray-700 text-white rounded-lg p-3 focus:outline-none focus:ring-2 focus:ring-purple-500" placeholder="Ask your question...">
-                <button type="submit" id="send-btn" class="bg-purple-600 hover:bg-purple-700 text-white font-bold p-3 rounded-lg flex-shrink-0 transition-transform transform hover:scale-105 disabled:bg-gray-500 disabled:cursor-not-allowed">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 12h14M12 5l7 7-7 7" /></svg>
-                </button>
-            </form>
+
+            <!-- 1700s -->
+            <div class="era">
+                <h2 class="era-title">1700s – Enlightenment & Discovery</h2>
+                
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1735</div>
+                        <div class="event-title">Carl Linnaeus Publishes Systema Naturae</div>
+                        <div class="event-description">Introduced binomial nomenclature, the system for naming species.</div>
+                        <div class="event-significance">Foundation of modern biological classification.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1752</div>
+                        <div class="event-title">Benjamin Franklin's Kite Experiment</div>
+                        <div class="event-description">Demonstrated that lightning is electricity.</div>
+                        <div class="event-significance">Led to the invention of the lightning rod and advanced electrical science.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1774</div>
+                        <div class="event-title">Joseph Priestley Discovers Oxygen</div>
+                        <div class="event-description">Identified a gas that supported combustion and respiration.</div>
+                        <div class="event-significance">Fundamental to chemistry and medicine.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1785</div>
+                        <div class="event-title">James Hutton Publishes Theory of Uniformitarianism</div>
+                        <div class="event-description">Proposed that Earth's features formed over long periods through gradual processes.</div>
+                        <div class="event-significance">Laid groundwork for modern geology.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1800s -->
+            <div class="era">
+                <h2 class="era-title">1800s – Age of Invention & Modern Biology</h2>
+                
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1800</div>
+                        <div class="event-title">Alessandro Volta Invents the Voltaic Pile (Battery)</div>
+                        <div class="event-description">First true source of continuous electrical current.</div>
+                        <div class="event-significance">Enabled experiments that fueled the study of electricity and chemistry.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1827</div>
+                        <div class="event-title">Georg Ohm Formulates Ohm's Law</div>
+                        <div class="event-description">Relationship between voltage, current, and resistance.</div>
+                        <div class="event-significance">Fundamental principle for electrical circuits and modern electronics.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1859</div>
+                        <div class="event-title">Charles Darwin Publishes On the Origin of Species</div>
+                        <div class="event-description">Introduced the theory of evolution by natural selection.</div>
+                        <div class="event-significance">Revolutionized biology, medicine, and our understanding of life.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1869</div>
+                        <div class="event-title">Dmitri Mendeleev Creates the Periodic Table</div>
+                        <div class="event-description">Organized chemical elements by atomic weight and properties.</div>
+                        <div class="event-significance">Provided a framework for modern chemistry and predicted new elements.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 1900s -->
+            <div class="era">
+                <h2 class="era-title">1900s – Scientific Breakthroughs & Space Age</h2>
+                
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1905</div>
+                        <div class="event-title">Albert Einstein's Annus Mirabilis Papers</div>
+                        <div class="event-description">Introduced special relativity and groundbreaking physics theories.</div>
+                        <div class="event-significance">Changed our understanding of time, space, and energy.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1928</div>
+                        <div class="event-title">Alexander Fleming Discovers Penicillin</div>
+                        <div class="event-description">First true antibiotic, revolutionizing medicine and saving millions of lives.</div>
+                        <div class="event-significance">First true antibiotic, revolutionizing medicine and saving millions of lives.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1953</div>
+                        <div class="event-title">Watson & Crick Describe the Structure of DNA</div>
+                        <div class="event-description">Discovery of the double helix with key contributions from Rosalind Franklin.</div>
+                        <div class="event-significance">Foundation of molecular biology and genetics.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">1969</div>
+                        <div class="event-title">Apollo 11 Moon Landing</div>
+                        <div class="event-description">Neil Armstrong and Buzz Aldrin became the first humans to walk on the Moon.</div>
+                        <div class="event-significance">Major milestones in space exploration and human achievement.</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 2000s -->
+            <div class="era">
+                <h2 class="era-title">2000s – 21st Century Science & Technology</h2>
+                
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">2001</div>
+                        <div class="event-title">Human Genome Project Draft Completed</div>
+                        <div class="event-description">First map of all human genes.</div>
+                        <div class="event-significance">Revolutionized medicine, genetics, and biotechnology.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">2007</div>
+                        <div class="event-title">Launch of the iPhone</div>
+                        <div class="event-description">Combined phone, music player, and internet into one device.</div>
+                        <div class="event-significance">Transformed communication, computing, and global culture.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">2012</div>
+                        <div class="event-title">Discovery of the Higgs Boson</div>
+                        <div class="event-description">Confirmed the existence of the Higgs field, essential for understanding mass.</div>
+                        <div class="event-significance">Major victory for particle physics and the Standard Model.</div>
+                    </div>
+                </div>
+
+                <div class="event">
+                    <div class="event-marker"></div>
+                    <div class="event-content">
+                        <div class="event-date">2019/2020</div>
+                        <div class="event-title">First Image of a Black Hole (M87 Galaxy)</div>
+                        <div class="event-description">Captured by the Event Horizon Telescope.</div>
+                        <div class="event-significance">Historic proof of Einstein's theory of general relativity on a cosmic scale.</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="footer">
+            <h3>Let's Make It a Habit!</h3>
+            <div class="habit-message">Habit 4 – Think Win–Win: your win + my win = OUR WIN</div>
+            <small>rbbalagtasii</small>
         </div>
     </div>
 
+    <div class="scroll-hint">↓ Scroll to explore history ↓</div>
 
     <script>
-        document.addEventListener("DOMContentLoaded", function() {
-            // JavaScript for scroll animations
-            const timelineItems = document.querySelectorAll('.timeline-item');
+        // Progress bar functionality
+        window.addEventListener('scroll', () => {
+            const winScroll = document.body.scrollTop || document.documentElement.scrollTop;
+            const height = document.documentElement.scrollHeight - document.documentElement.clientHeight;
+            const scrolled = (winScroll / height) * 100;
+            document.getElementById('progressBar').style.width = scrolled + '%';
+        });
 
-            const observer = new IntersectionObserver(entries => {
-                entries.forEach(entry => {
-                    if (entry.isIntersecting) {
-                        entry.target.classList.add('is-visible');
-                        observer.unobserve(entry.target);
-                    }
-                });
-            }, {
-                threshold: 0.1
-            });
+        // Intersection Observer for animations
+        const observerOptions = {
+            threshold: 0.1,
+            rootMargin: '0px 0px -50px 0px'
+        };
 
-            timelineItems.forEach(item => {
-                observer.observe(item);
-            });
-
-
-            // --- Gemini API Chat Integration ---
-            const modal = document.getElementById('gemini-modal');
-            const modalContent = document.getElementById('modal-content');
-            const modalClose = document.getElementById('modal-close');
-            const loader = document.getElementById('loader');
-            const askButtons = document.querySelectorAll('.ask-btn');
-            const modalTitle = document.getElementById('modal-title');
-            const chatHistoryContainer = document.getElementById('chat-history');
-            const chatForm = document.getElementById('chat-form');
-            const chatInput = document.getElementById('chat-input');
-            const sendBtn = document.getElementById('send-btn');
-            
-            let currentEventTitle = '';
-            let chatHistory = [];
-
-
-            const openModal = () => {
-                modal.classList.remove('hidden');
-                modal.classList.add('flex');
-                setTimeout(() => {
-                    modalContent.classList.remove('scale-95', 'opacity-0');
-                }, 10);
-            };
-
-            const closeModal = () => {
-                modalContent.classList.add('scale-95', 'opacity-0');
-                setTimeout(() => {
-                    modal.classList.add('hidden');
-                    modal.classList.remove('flex');
-                }, 300);
-            };
-            
-            const addMessageToUI = (role, text) => {
-                const messageDiv = document.createElement('div');
-                messageDiv.classList.add('chat-bubble', role);
-                
-                // Simple markdown to HTML
-                let htmlText = text.replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>'); 
-                htmlText = htmlText.replace(/\*(.*?)\*/g, '<em>$1</em>');
-                htmlText = htmlText.replace(/\n/g, '<br>');
-                messageDiv.innerHTML = htmlText;
-
-                chatHistoryContainer.appendChild(messageDiv);
-                chatHistoryContainer.scrollTop = chatHistoryContainer.scrollHeight;
-            };
-
-            const getGeminiResponse = async () => {
-                loader.classList.remove('hidden');
-                sendBtn.disabled = true;
-
-                const apiKey = ""; // Keep empty
-                const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-                
-                const systemPrompt = `You are a friendly and knowledgeable science history tutor. A student is asking questions about a specific event from a timeline. The context for this entire conversation is: "${currentEventTitle}". Your task is to answer the student's questions clearly and concisely, keeping the information relevant to the event. If a question is unrelated, gently guide them back to the topic. Keep your tone engaging and encouraging for a high school student.`;
-
-                const payload = {
-                    contents: chatHistory,
-                    systemInstruction: {
-                        parts: [{ text: systemPrompt }]
-                    },
-                };
-
-                let response;
-                let retries = 3;
-                let delay = 1000;
-
-                for (let i = 0; i < retries; i++) {
-                    try {
-                        response = await fetch(apiUrl, {
-                            method: 'POST',
-                            headers: { 'Content-Type': 'application/json' },
-                            body: JSON.stringify(payload)
-                        });
-
-                        if (response.ok) {
-                            const result = await response.json();
-                            const modelResponse = result.candidates?.[0]?.content?.parts?.[0]?.text;
-                            if (modelResponse) {
-                                chatHistory.push({ role: 'model', parts: [{ text: modelResponse }] });
-                                addMessageToUI('assistant', modelResponse);
-                            } else {
-                                throw new Error('Empty response from API.');
-                            }
-                            break; // Exit loop on success
-                        }
-                    } catch (error) {
-                        console.error(`Fetch error on attempt ${i + 1}:`, error);
-                        if (i === retries - 1) { // Last attempt failed
-                             addMessageToUI('assistant', 'Sorry, I am having trouble connecting right now. Please try again in a moment.');
-                        }
-                        await new Promise(res => setTimeout(res, delay));
-                        delay *= 2; // Exponential backoff
-                    }
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
                 }
-                
-                loader.classList.add('hidden');
-                sendBtn.disabled = false;
-                chatInput.focus();
-            };
-            
-            chatForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                const userQuestion = chatInput.value.trim();
-                if (!userQuestion) return;
-                
-                chatHistory.push({ role: 'user', parts: [{ text: userQuestion }] });
-                addMessageToUI('user', userQuestion);
-                chatInput.value = '';
-                
-                await getGeminiResponse();
             });
+        }, observerOptions);
 
-            askButtons.forEach(button => {
-                button.addEventListener('click', () => {
-                    currentEventTitle = button.dataset.eventTitle;
-                    modalTitle.textContent = `Ask about: ${currentEventTitle}`;
-                    chatHistory = [];
-                    chatHistoryContainer.innerHTML = '';
-                    addMessageToUI('assistant', `Hi there! What would you like to know about "${currentEventTitle}"?`);
-                    openModal();
-                    chatInput.focus();
-                });
-            });
+        // Observe all events
+        document.querySelectorAll('.event').forEach(event => {
+            observer.observe(event);
+        });
 
-            modalClose.addEventListener('click', closeModal);
-            modal.addEventListener('click', (e) => {
-                if (e.target === modal) {
-                    closeModal();
-                }
+        // Hide scroll hint after scrolling
+        let scrollTimer = null;
+        window.addEventListener('scroll', () => {
+            if (scrollTimer !== null) {
+                clearTimeout(scrollTimer);
+            }
+            scrollTimer = setTimeout(() => {
+                document.querySelector('.scroll-hint').style.opacity = '0';
+            }, 1000);
+        }, false);
+
+        // Add click interaction to events
+        document.querySelectorAll('.event-content').forEach(content => {
+            content.addEventListener('click', () => {
+                content.style.transform = 'scale(1.02)';
+                setTimeout(() => {
+                    content.style.transform = '';
+                }, 200);
             });
         });
     </script>
 </body>
 </html>
-
